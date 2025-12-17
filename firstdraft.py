@@ -17,7 +17,7 @@ class Solicitud:
         self.registro_variables = {
             'radiacion solar': {
                 'dataset': 'ECMWF/ERA5_LAND/DAILY_AGGR',
-                'bands': ['surface_net_solar_radiation'],
+                'bands': ['surface_net_solar_radiation_sum'],
                 'type': 'daily'
             },
             'temperatura': {
@@ -160,6 +160,7 @@ class DataFetcher:
         df = pd.DataFrame([results])
         return df
     
+'''
 # DEMO DE FUNCIONAMIENTO
 # 1. Hacer la solicitud
 solicitud_class = Solicitud(coords=[-99.1332, 19.4326])
@@ -170,3 +171,4 @@ fetcher = DataFetcher(detalles)
 valores = fetcher.to_dataframe()
 
 print(valores)
+'''
