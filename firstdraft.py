@@ -7,7 +7,7 @@ ee.Initialize(project="place-holder-project")
 
 # -------------------------Detalles de Solicitud-----------------------------
 '''
-Observación: se hace la solicitud de la data de hace 8 días para
+Observación: se hace la solicitud de la data de hace 7 días para
 asegurar la existencia de información a partir de la cual predecir
 '''
 
@@ -68,7 +68,7 @@ class Solicitud:
         }
 
     def hacer_solicitud(self, variables):
-        fecha = date.today() - timedelta(days=8)
+        fecha = date.today() - timedelta(days=7)
         selected = {var: self.registro_variables[var]
                     for var in variables if var in self.registro_variables}
         detalles_solicitud = {
@@ -159,16 +159,3 @@ class DataFetcher:
         results = self.fetch()
         df = pd.DataFrame([results])
         return df
-    
-'''
-# DEMO DE FUNCIONAMIENTO
-# 1. Hacer la solicitud
-solicitud_class = Solicitud(coords=[-99.1332, 19.4326])
-detalles = solicitud_class.hacer_solicitud(['temperatura', 'precipitacion', 'humedad relativa', 'nubosidad','aerosoles','elevacion'])
-
-# 2. Pasarla al fetcher
-fetcher = DataFetcher(detalles)
-valores = fetcher.to_dataframe()
-
-print(valores)
-'''
