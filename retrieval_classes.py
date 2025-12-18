@@ -67,8 +67,12 @@ class Solicitud:
             }
         }
 
-    def hacer_solicitud(self, variables):
-        fecha = date.today() - timedelta(days=7)
+    def hacer_solicitud(self, variables, fecha = None):
+        if fecha is None:
+            fecha = date.today() - timedelta(days=7)
+        elif isinstance(fecha,str):
+            fecha = date.fromisoformat(fecha)
+            
         selected = {var: self.registro_variables[var]
                     for var in variables if var in self.registro_variables}
         detalles_solicitud = {
@@ -81,8 +85,9 @@ class Solicitud:
 
 # ---------------------------Extracción de Datos-----------------------------
 class DataFetcher:
-    def __init__(self, solicitud):
+    def __init__(self, solicitud, include_meta=True):
         self.solicitud = solicitud
+        self.include_meta = include_meta
 
     def fetch(self):
         punto = self.solicitud['punto']
@@ -157,5 +162,12 @@ class DataFetcher:
 
     def to_dataframe(self):
         results = self.fetch()
+        if self.include_meta:
+            punto = self.solicitud['punto']
+            f1 = self.solicitud['fecha_inicio']
+            lon, lat = punto['coordinates']
+            results['fecha'] = f1.format('YYYY-MM-dd').getInfo()
+            results['lat'] = lat
+            results['lon'] = lon
         df = pd.DataFrame([results])
         return df
