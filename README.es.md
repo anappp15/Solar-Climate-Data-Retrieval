@@ -38,26 +38,9 @@ earthengine authenticate
 
 ## 📖 Uso
 
-### Importar Clases
-```python
-from retrieval_classes import Solicitud, DataFetcher
-```
-
-### Ejemplo de Flujo
-```python
-# Definir coordenadas (longitud, latitud)
-coords = (-82.43, 8.43)  # Ejemplo: David, Chiriquí, Panamá
-
-# Crear una solicitud de radiación solar y temperatura
-solicitud = Solicitud(coords).hacer_solicitud(
-    variables=['radiacion solar', 'temperatura']
-)
-
-# Extraer datos
-fetcher = DataFetcher(solicitud)
-df = fetcher.to_dataframe()
-
-print(df)
+Puede verse un ejemplo completo en el archivo [demo.py](demo.py) que se encuentra en este repositorio. Ejecútalo con:
+```bash
+python demo.py
 ```
 
 ---
