@@ -38,28 +38,12 @@ earthengine authenticate
 
 ## 📖 Usage
 
-### Import Classes
-```python
-from retrieval_classes import Solicitud, DataFetcher
+For a complete example, check out the [demo.py](demo.py) file in this repository.
+
+Run it with:
+```bash
+python demo.py
 ```
-
-### Example Workflow
-```python
-# Define coordinates (longitude, latitude)
-coords = (-82.43, 8.43)  # Example: David, Chiriquí, Panama
-
-# Create a request for solar radiation and temperature
-solicitud = Solicitud(coords).hacer_solicitud(
-    variables=['radiacion solar', 'temperatura']
-)
-
-# Fetch data
-fetcher = DataFetcher(solicitud)
-df = fetcher.to_dataframe()
-
-print(df)
-```
-
 ---
 
 ## 📌 Notes
