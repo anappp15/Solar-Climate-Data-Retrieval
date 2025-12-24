@@ -54,5 +54,3 @@ python demo.py
 - Las solicitudes están diseñadas para devolver **datos de un solo día**.  
 - Si existen múltiples imágenes para ese día, el código las promediará o manejará la discrepancia de forma controlada.  
 - Esto asegura valores diarios consistentes para el análisis.
-
-¿Quieres que te prepare también un **“Futuro Trabajo”** en español para mencionar la posible extensión a **semanal y mensual** de forma natural?
