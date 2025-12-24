@@ -1,106 +1,73 @@
-# Solar-Climate Data Retrieval
+# Solar Climate Data Retrieval
 
-This repository provides Python classes for **retrieving and sampling climate variables from Google Earth Engine (ERA5 datasets)**. The tool is designed to support **solar-climate analysis workflows**, enabling both direct and derived variable extraction at specific coordinates.
-
----
-
-## ✨ Features
-- **Solicitud class**  
-  - Builds a request dictionary for a given coordinate.  
-  - Supports both **direct variables** (temperature, precipitation, solar radiation, pressure) and **derived variables** (wind speed, wind direction, relative humidity).  
-  - Automatically slices the variable maps to include only those requested.  
-  - Uses data from **8 days prior to today** to ensure availability.
-
-- **DataFetcher class**  
-  - Executes the request against Google Earth Engine.  
-  - Methods:
-    - `fetch()` → retrieves values for all requested variables.  
-    - `get_sample()` → extracts a single image sample for the specified date and bands.  
-    - `get_values()` → computes values, including derived formulas (e.g., wind speed from u/v components, relative humidity from dewpoint and temperature, temperature converted from Kelvin to Celsius).  
-    - `to_dataframe()` → returns results as a tidy **pandas DataFrame** (one row per request).
+This repository provides Python classes for retrieving some radiation and climate variables using **Google Earth Engine**.
+The said two main classes are:  
+- **Solicitud** → defines the request (location, variables, date).  
+- **DataFetcher** → extracts values from Earth Engine datasets and returns them as dictionaries or Pandas DataFrames.
 
 ---
 
-## 📖 Example Usage
-
-```python
-import ee
-import pandas as pd
-from datetime import date, timedelta
-
-# Initialize Earth Engine
-ee.Initialize(project="place-holder-project")
-
-# 1. Build the request
-solicitud_class = Solicitud(coords=[-99.1332, 19.4326])
-detalles = solicitud_class.hacer_solicitud(
-    ['temperatura', 'precipitacion', 'humedad relativa']
-)
-
-# 2. Pass into the fetcher
-fetcher = DataFetcher(detalles)
-valores = fetcher.to_dataframe()
-
-print(valores)
-```
-
-**Output:**
-```
-   temperatura  precipitacion  humedad relativa
-0        25.3           0.002              65.4
-```
+## 📂 Project Structure
+- `retrieval_classes.py` → Core classes (`Solicitud`, `DataFetcher`).
+- `demo.py` → Example usage of the retrieval workflow.
+- `requirements.txt` → Dependencies (`earthengine-api`, `pandas`).
 
 ---
 
-## ⚙️ Quick Setup
+## ⚡ Features
+- Retrieve multiple variables (solar radiation, temperature, precipitation, wind, humidity, aerosols, elevation, etc.).
+- Support for **daily**, **hourly**, and **static** datasets.
+- Automatic handling of wind speed, wind direction, relative humidity, and temperature conversions.
+- Export results to Pandas DataFrame for analysis.
 
-### Requirements
-- Python 3.9+
-- [Google Earth Engine Python API](https://developers.google.com/earth-engine/python_install)
-- pandas
+---
 
-Install dependencies:
-```bash
-pip install earthengine-api pandas
-```
-
-### Authentication
-Before running the demo:
-1. Authenticate with Earth Engine:
-   ```bash
-   earthengine authenticate
-   ```
-   Follow the link, sign in with your Google account, and paste the token back.
-2. Initialize Earth Engine in your code with your project:
-   ```python
-   import ee
-   ee.Initialize(project="your-gcp-project-id")
-   ```
-
-### Running the Demo
-Clone the repository:
+## 🚀 Installation
 ```bash
 git clone https://github.com/anappp15/Solar-Climate-Data-Retrieval.git
 cd Solar-Climate-Data-Retrieval
+pip install -r requirements.txt
 ```
 
-Run the demo script:
+Make sure you have [Google Earth Engine](https://developers.google.com/earth-engine) initialized:
 ```bash
-python demo.py
+earthengine authenticate
 ```
-
-This will:
-- Build a request for selected variables (e.g., temperature, precipitation, relative humidity).
-- Fetch values from ERA5 daily aggregates.
-- Return results as a tidy pandas DataFrame.
 
 ---
 
-## ⚠️ Considerations
-- The code is designed for **daily aggregated datasets** (`ECMWF/ERA5_LAND/DAILY_AGGR`).  
-- Using hourly or monthly collections will raise an error, since the workflow expects exactly one image per date.  
-- Temperature values are automatically converted from **Kelvin to Celsius**.  
-- Derived variables are computed internally:
-  - Wind speed = √(u² + v²)  
-  - Wind direction = atan2(v, u) in degrees  
-  - Relative humidity = approximation using dewpoint and temperature  
+## 📖 Usage
+
+### Import Classes
+```python
+from retrieval_classes import Solicitud, DataFetcher
+```
+
+### Example Workflow
+```python
+# Define coordinates (longitude, latitude)
+coords = (-82.43, 8.43)  # Example: David, Chiriquí, Panama
+
+# Create a request for solar radiation and temperature
+solicitud = Solicitud(coords).hacer_solicitud(
+    variables=['radiacion solar', 'temperatura']
+)
+
+# Fetch data
+fetcher = DataFetcher(solicitud)
+df = fetcher.to_dataframe()
+
+print(df)
+```
+
+---
+
+## 📌 Notes
+- Default date is **7 days ago** to ensure data availability.
+- Variables must match keys in `Solicitud.registro_variables`.
+- Extend `Solicitud` to add new datasets or bands.
+- `DataFetcher.to_dataframe()` includes metadata (lat, lon, date).
+
+- Requests are designed to return **one day of data**.  
+- If multiple images exist for that day, the code will either average them or handle the mismatch gracefully.  
+- This ensures consistent daily values for analysis.
