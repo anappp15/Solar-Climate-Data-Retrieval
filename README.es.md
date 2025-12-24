@@ -1,89 +1,75 @@
-# Recuperación de Datos Solar-Climáticos
+# Recuperación de Datos de Clima Solar
 
-Este repositorio contiene clases en Python para **recuperar y muestrear variables climáticas desde Google Earth Engine (datasets ERA5)**. La herramienta está diseñada para apoyar flujos de trabajo de **análisis solar-climático**, permitiendo extraer tanto variables directas como derivadas en coordenadas específicas.
-
----
-
-## ✨ Características
-- **Clase Solicitud**  
-  - Construye un diccionario de solicitud para una coordenada dada.  
-  - Soporta **variables directas** (temperatura, precipitación, radiación solar, presión) y **variables derivadas** (velocidad del viento, dirección del viento, humedad relativa).  
-  - Usa datos de **8 días atrás** para asegurar disponibilidad.  
-
-- **Clase DataFetcher**  
-  - Ejecuta la solicitud en Google Earth Engine.  
-  - Métodos:
-    - `fetch()` → obtiene valores de las variables solicitadas.  
-    - `get_sample()` → extrae una muestra única de la colección de imágenes.  
-    - `get_values()` → calcula valores, incluyendo fórmulas derivadas (ej. velocidad del viento a partir de u/v, humedad relativa a partir de temperatura y punto de rocío, temperatura convertida de Kelvin a Celsius).  
-    - `to_dataframe()` → retorna los resultados como un **DataFrame de pandas**.  
+Este repositorio proporciona clases en Python para recuperar variables de radiación y clima utilizando **Google Earth Engine**.  
+Las dos clases principales son:  
+- **Solicitud** → define la petición (ubicación, variables, fecha).  
+- **DataFetcher** → extrae valores de los conjuntos de datos de Earth Engine y los devuelve como diccionarios o DataFrames de Pandas.
 
 ---
 
-## 📖 Ejemplo de uso
-
-```python
-solicitud_class = Solicitud(coords=[-99.1332, 19.4326])
-detalles = solicitud_class.hacer_solicitud(['temperatura','precipitacion','humedad relativa'])
-
-fetcher = DataFetcher(detalles)
-valores = fetcher.to_dataframe()
-
-print(valores)
-```
-
-**Salida esperada:**
-```
-   temperatura  precipitacion  humedad relativa
-0        25.3           0.002              65.4
-```
+## 📂 Estructura del Proyecto
+- `retrieval_classes.py` → Clases principales (`Solicitud`, `DataFetcher`).  
+- `demo.py` → Ejemplo de uso del flujo de recuperación.  
+- `requirements.txt` → Dependencias (`earthengine-api`, `pandas`).  
 
 ---
 
-## ⚙️ Configuración rápida
+## ⚡ Características
+- Recupera múltiples variables (radiación solar, temperatura, precipitación, viento, humedad, aerosoles, elevación, etc.).  
+- Soporte para conjuntos de datos **diarios**, **por hora** y **estáticos**.  
+- Manejo automático de velocidad y dirección del viento, humedad relativa y conversión de temperatura.  
+- Exporta resultados a DataFrame de Pandas para análisis.  
 
-### Requisitos
-- Python 3.9+
-- [Google Earth Engine Python API](https://developers.google.com/earth-engine/python_install)
-- pandas
+---
 
-Instalar dependencias:
-```bash
-pip install earthengine-api pandas
-```
-
-### Autenticación
-Antes de ejecutar el demo:
-1. Autenticar con Earth Engine:
-   ```bash
-   earthengine authenticate
-   ```
-   Sigue el enlace, inicia sesión con tu cuenta de Google y pega el token.
-2. Inicializar Earth Engine en tu código:
-   ```python
-   import ee
-   ee.Initialize(project="tu-proyecto-gcp")
-   ```
-
-### Ejecutar el demo
-Clonar el repositorio:
+## 🚀 Instalación
 ```bash
 git clone https://github.com/anappp15/Solar-Climate-Data-Retrieval.git
 cd Solar-Climate-Data-Retrieval
+pip install -r requirements.txt
 ```
 
-Ejecutar el script:
+Asegúrate de tener [Google Earth Engine](https://developers.google.com/earth-engine) inicializado:  
 ```bash
-python demo.py
+earthengine authenticate
 ```
 
 ---
 
-## ⚠️ Consideraciones
-- El código está diseñado para datasets **diarios** (`ECMWF/ERA5_LAND/DAILY_AGGR`).  
-- Usar colecciones horarias o mensuales generará un error.  
-- La temperatura se convierte automáticamente de **Kelvin a Celsius**.  
-- Variables derivadas se calculan internamente:
-  - Velocidad del viento = √(u² + v²)  
-  - Dirección del viento = atan2(v, u) en grados  
-  - Humedad relativa = aproximación usando punto de rocío y temperatura  
+## 📖 Uso
+
+### Importar Clases
+```python
+from retrieval_classes import Solicitud, DataFetcher
+```
+
+### Ejemplo de Flujo
+```python
+# Definir coordenadas (longitud, latitud)
+coords = (-82.43, 8.43)  # Ejemplo: David, Chiriquí, Panamá
+
+# Crear una solicitud de radiación solar y temperatura
+solicitud = Solicitud(coords).hacer_solicitud(
+    variables=['radiacion solar', 'temperatura']
+)
+
+# Extraer datos
+fetcher = DataFetcher(solicitud)
+df = fetcher.to_dataframe()
+
+print(df)
+```
+
+---
+
+## 📌 Notas
+- La fecha por defecto es **7 días atrás** para asegurar disponibilidad de datos.  
+- Las variables deben coincidir con las claves en `Solicitud.registro_variables`.  
+- Extiende `Solicitud` para añadir nuevos conjuntos de datos o bandas.  
+- `DataFetcher.to_dataframe()` incluye metadatos (latitud, longitud, fecha).  
+
+- Las solicitudes están diseñadas para devolver **datos de un solo día**.  
+- Si existen múltiples imágenes para ese día, el código las promediará o manejará la discrepancia de forma controlada.  
+- Esto asegura valores diarios consistentes para el análisis.
+
+¿Quieres que te prepare también un **“Futuro Trabajo”** en español para mencionar la posible extensión a **semanal y mensual** de forma natural?
